@@ -1,0 +1,52 @@
+Text-to-CAD Web Source-Available Non-Commercial License
+
+Copyright (c) 2026 CodeEagle
+
+This license applies to the Text-to-CAD Web project code owned by CodeEagle.
+Third-party dependencies, vendored projects, and upstream CAD Skills keep their
+own licenses and notices.
+
+1. Non-commercial permission
+
+You may view, clone, run, study, and modify this software for personal,
+educational, research, evaluation, or other non-commercial purposes, provided
+that you preserve this license notice and all copyright notices.
+
+2. Commercial use requires authorization
+
+Commercial use is not permitted without prior written authorization from
+CodeEagle. Contact the repository owner to obtain a commercial license before
+using this software for any commercial purpose.
+
+Commercial use includes, without limitation:
+
+- offering this software, modified versions, or hosted instances as a paid or
+  revenue-generating product or service;
+- integrating this software into a commercial product, service, workflow, or
+  platform;
+- using this software to provide paid consulting, design, CAD generation,
+  automation, or engineering services;
+- using this software within an organization for commercial business operations.
+
+3. Redistribution
+
+You may redistribute this software or modified versions only for
+non-commercial purposes, and only under this same license. You must preserve
+this license notice, copyright notices, and notices for included third-party
+software.
+
+4. No trademark license
+
+This license does not grant rights to use the names, logos, or trademarks of
+CodeEagle or any upstream projects except as required for accurate attribution.
+
+5. No warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM,
+OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+

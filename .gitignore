@@ -1,0 +1,11 @@
+.DS_Store
+.env
+.env.local
+.next/
+node_modules/
+var/
+coverage/
+dist/
+tsconfig.tsbuildinfo
+vendor/cad-viewer/dist/
+vendor/cad-viewer/node_modules/

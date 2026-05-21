@@ -1,0 +1,31 @@
+{
+  "name": "text-to-cad-web",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE",
+  "description": "A web workbench for running Codex CLI with earthtojake/text-to-cad skills.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "setup:viewer": "npm --prefix vendor/cad-viewer install && npm --prefix vendor/text-to-cad-skills/render/scripts/viewer install",
+    "setup:cad-python": "node scripts/setup-cad-python.mjs",
+    "setup:codex": "npm install -g @openai/codex && mkdir -p var/codex-home/skills && npm run setup:cad-python",
+    "sync:demo-previews": "node scripts/sync-demo-previews.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}
