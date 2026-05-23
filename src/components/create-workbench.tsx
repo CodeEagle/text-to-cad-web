@@ -635,9 +635,24 @@ function CodexSettingsMenu({
   reasoningEffort: CodexReasoningEffort;
 }) {
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  // Tap anywhere outside the trigger/menu to dismiss. The trigger button
+  // itself still toggles on tap; this lets the user close by tapping the
+  // backdrop on mobile where the trigger is small.
+  useEffect(() => {
+    if (!open) return;
+    function onPointer(event: PointerEvent) {
+      const root = wrapRef.current;
+      if (!root || root.contains(event.target as Node)) return;
+      setOpen(false);
+    }
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [open]);
 
   return (
-    <div className="codex-settings">
+    <div className="codex-settings" ref={wrapRef}>
       <button
         aria-expanded={open}
         aria-haspopup="menu"

@@ -1648,7 +1648,11 @@ h1, h2, h3 { margin: 0; }
     left: 0;
     right: 0;
     top: var(--topbar-h);
-    bottom: var(--mobile-tabbar-h);
+    /* Park the drawer above the bottom tabbar (and any iOS home-indicator
+       safe-area padding) so the composer at the drawer's bottom stays
+       tappable. */
+    bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px));
+    height: auto;
     z-index: 35;
     background: var(--paper);
     border-top: 1px solid var(--hairline);
@@ -1660,6 +1664,29 @@ h1, h2, h3 { margin: 0; }
   body[data-mobile-tab="workspace"] .chat-rail.overlay-open {
     transform: translateY(0);
     pointer-events: auto;
+  }
+
+  /* Resource popover: anchor as a top sheet below the header so it
+     fits any narrow viewport instead of relying on its trigger anchor. */
+  .resource-popover {
+    position: fixed;
+    top: calc(var(--topbar-h) + 6px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100dvh - var(--topbar-h) - var(--mobile-tabbar-h) - 20px);
+    overflow-y: auto;
+  }
+
+  /* Codex settings menu (model selector): clamp to viewport width on
+     mobile so the option list does not overflow off-screen. */
+  .codex-settings-menu {
+    width: min(320px, calc(100vw - 24px));
+  }
+  .composer-row .codex-settings-menu {
+    right: 0;
+    left: auto;
   }
 
   /* Mobile rail returns to vertical list */
