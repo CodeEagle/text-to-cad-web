@@ -101,7 +101,14 @@ class AppServerClient {
       cwd,
       model,
       approvalPolicy: "never",
-      sandbox: "workspace-write",
+      // The agent runs inside a Docker container (LazyCat / docker host),
+      // which is itself the security boundary. Codex's workspace-write
+      // sandbox uses bwrap, which needs user namespaces unavailable in
+      // most container runtimes and ends up read-only — that's what
+      // surfaces as "Failed to write file <abs path>". Bypassing the
+      // nested sandbox is the documented pattern for externally
+      // sandboxed environments.
+      sandbox: "danger-full-access",
       ephemeral: true,
       threadSource: "user"
     })) as { thread?: { id?: string } };
@@ -127,11 +134,7 @@ class AppServerClient {
       effort: reasoningEffort,
       approvalPolicy: "never",
       sandboxPolicy: {
-        type: "workspaceWrite",
-        writableRoots: [cwd, getCodexHome()],
-        networkAccess: false,
-        excludeTmpdirEnvVar: false,
-        excludeSlashTmp: false
+        type: "dangerFullAccess"
       },
       input: [
         {
