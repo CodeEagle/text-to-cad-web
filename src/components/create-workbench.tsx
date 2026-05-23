@@ -83,7 +83,7 @@ type JobMessage = {
   jobId?: string;
 };
 
-type MobileTab = "library" | "workspace" | "chat" | "files";
+type MobileTab = "library" | "workspace";
 
 export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
   const [selected, setSelected] = useState(examples[0]);
@@ -97,6 +97,8 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
   const [busy, setBusy] = useState<BusyState>(null);
   const [message, setMessage] = useState("");
   const [mobileTab, setMobileTab] = useState<MobileTab>("workspace");
+  // On mobile, chat is an overlay drawer on the workspace pane (collapsed by default).
+  const [chatOverlayOpen, setChatOverlayOpen] = useState(false);
   const [historyPanelOpen, setHistoryPanelOpen] = useState(true);
   const [sessionsLoading, setSessionsLoading] = useState(false);
   const [historyQuery, setHistoryQuery] = useState("");
@@ -117,7 +119,8 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
   const displayedMessages = job?.messages ?? chatMessages;
   const chatRailClassName = [
     "chat-rail",
-    historyPanelOpen ? "with-history" : ""
+    historyPanelOpen ? "with-history" : "",
+    chatOverlayOpen ? "overlay-open" : "overlay-collapsed"
   ].filter(Boolean).join(" ");
   const visibleExamples = useMemo(
     () => examples.filter((example) => example.skillId === selectedSkillId),
@@ -296,7 +299,8 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
     setPrompt(example.prompt);
     setMessage("");
     setHistoryPanelOpen(false);
-    setMobileTab("chat");
+    setMobileTab("workspace");
+    setChatOverlayOpen(true);
     window.setTimeout(() => promptInputRef.current?.focus(), 0);
   }
 
@@ -426,6 +430,15 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
             >
               <Library size={15} />
               <span>历史</span>
+            </button>
+            <button
+              aria-label="收起对话"
+              className="chat-overlay-close"
+              onClick={() => setChatOverlayOpen(false)}
+              title="收起对话"
+              type="button"
+            >
+              <ChevronDown size={16} />
             </button>
           </span>
         </div>
@@ -575,6 +588,18 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
         ) : null}
       </aside>
 
+      {/* ─── Mobile chat overlay FAB (workspace mode only) ──────────── */}
+      <button
+        type="button"
+        className={chatOverlayOpen ? "chat-overlay-fab is-hidden" : "chat-overlay-fab"}
+        aria-label="展开对话"
+        aria-expanded={chatOverlayOpen}
+        onClick={() => setChatOverlayOpen(true)}
+      >
+        <MessageSquare size={20} />
+        {jobIsRunning ? <span className="chat-overlay-fab-badge" /> : null}
+      </button>
+
       {/* ─── Mobile bottom tab bar ─────────────────────────────────── */}
       <nav className="mobile-tabbar" aria-label="移动端分区">
         <TabBtn
@@ -588,13 +613,6 @@ export function CreateWorkbench({ examples }: { examples: PromptExample[] }) {
           label="示例"
           active={mobileTab === "library"}
           onClick={() => setMobileTab("library")}
-        />
-        <TabBtn
-          icon={<MessageSquare size={20} />}
-          label="对话"
-          active={mobileTab === "chat"}
-          badge={jobIsRunning ? "•" : undefined}
-          onClick={() => setMobileTab("chat")}
         />
       </nav>
     </main>
@@ -737,15 +755,6 @@ function StageHeader({
           <em>{splitTitle.head}</em>
           {splitTitle.tail}
         </h1>
-        <div className="stage-title-actions">
-          <a
-            className="btn sm"
-            href={job ? `/artifacts?job=${encodeURIComponent(job.id)}` : "/artifacts"}
-          >
-            <Box size={14} />
-            查看成品
-          </a>
-        </div>
       </div>
     </div>
   );

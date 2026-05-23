@@ -1612,6 +1612,10 @@ h1, h2, h3 { margin: 0; }
 /* ─────────────────────────────────────────────────────────────────────
    Mobile (≤ 760px) — bottom tab bar; show one pane at a time.
    ───────────────────────────────────────────────────────────────────── */
+/* Mobile-only chat overlay controls; hidden on desktop. */
+.chat-overlay-fab,
+.chat-overlay-close { display: none; }
+
 @media (max-width: 760px) {
   :root {
     --topbar-h: 52px;
@@ -1636,8 +1640,27 @@ h1, h2, h3 { margin: 0; }
   .rail, .stage, .chat-rail { display: none; }
   body[data-mobile-tab="library"]   .rail      { display: grid; grid-template-rows: auto 1fr; }
   body[data-mobile-tab="workspace"] .stage     { display: grid; }
-  body[data-mobile-tab="files"]     .stage     { display: grid; }
-  body[data-mobile-tab="chat"]      .chat-rail { display: grid; }
+
+  /* In workspace mode, chat is a bottom drawer overlaid on the preview. */
+  body[data-mobile-tab="workspace"] .chat-rail {
+    display: grid;
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--topbar-h);
+    bottom: var(--mobile-tabbar-h);
+    z-index: 35;
+    background: var(--paper);
+    border-top: 1px solid var(--hairline);
+    box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.22);
+    transform: translateY(100%);
+    transition: transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    pointer-events: none;
+  }
+  body[data-mobile-tab="workspace"] .chat-rail.overlay-open {
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 
   /* Mobile rail returns to vertical list */
   .rail { border-right: 0; grid-template-columns: 1fr; }
@@ -1663,8 +1686,6 @@ h1, h2, h3 { margin: 0; }
   .stage { padding: 14px 14px 18px; }
   .stage-title-row { align-items: start; flex-direction: column; }
   .stage-title-row h1 { font-size: 26px; }
-  .stage-title-actions { width: 100%; }
-  .stage-title-actions .btn { flex: 1; }
 
   .stage-canvas { border-radius: 12px; }
   .preview-panel { min-height: 360px; }
@@ -1689,13 +1710,58 @@ h1, h2, h3 { margin: 0; }
     border-top: 1px solid var(--hairline);
     bottom: 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     height: var(--mobile-tabbar-h);
     left: 0;
     padding: 6px 8px env(safe-area-inset-bottom, 6px);
     position: fixed;
     right: 0;
     z-index: 40;
+  }
+
+  /* Floating chat-overlay opener (visible when overlay collapsed) */
+  .chat-overlay-fab {
+    align-items: center;
+    background: var(--ink);
+    border: none;
+    border-radius: 999px;
+    bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px) + 14px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
+    color: var(--paper);
+    cursor: pointer;
+    display: inline-flex;
+    height: 52px;
+    justify-content: center;
+    position: fixed;
+    right: 16px;
+    width: 52px;
+    z-index: 36;
+  }
+  .chat-overlay-fab.is-hidden { display: none; }
+  .chat-overlay-fab-badge {
+    background: tomato;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    height: 10px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 10px;
+  }
+
+  /* Collapse handle inside the chat overlay head */
+  .chat-overlay-close {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--hairline);
+    border-radius: 8px;
+    color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex;
+    height: 32px;
+    justify-content: center;
+    margin-left: 6px;
+    width: 32px;
   }
   .mobile-tabbar button {
     align-items: center;
