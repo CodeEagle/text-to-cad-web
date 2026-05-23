@@ -1679,9 +1679,10 @@ h1, h2, h3 { margin: 0; }
   .rail-row {
     flex: unset;
     width: 100%;
-    grid-template-columns: minmax(0, 1fr);
+    /* Keep the 2-col layout (preview + info) so the title doesn't get clipped. */
+    grid-template-columns: 62px minmax(0, 1fr);
   }
-  .rail-row-with-status { grid-template-columns: minmax(0, 1fr) auto; }
+  .rail-row-with-status { grid-template-columns: 62px minmax(0, 1fr) auto; }
 
   .stage { padding: 14px 14px 18px; }
   .stage-title-row { align-items: start; flex-direction: column; }
