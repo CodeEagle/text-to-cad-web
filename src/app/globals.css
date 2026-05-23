@@ -1679,14 +1679,30 @@ h1, h2, h3 { margin: 0; }
     overflow-y: auto;
   }
 
-  /* Codex settings menu (model selector): clamp to viewport width on
-     mobile so the option list does not overflow off-screen. */
+  /* Codex settings menu (model selector): on mobile, anchor the menu
+     as a bottom sheet above the tabbar so it can never be clipped by
+     the chat drawer or hidden behind the tabbar. Sits above tabbar
+     (z-index 40) so it always wins the stacking contest. */
   .codex-settings-menu {
     width: min(320px, calc(100vw - 24px));
   }
   .composer-row .codex-settings-menu {
-    right: 0;
-    left: auto;
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: calc(var(--mobile-tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px);
+    top: auto;
+    width: auto;
+    max-height: 60dvh;
+    overflow-y: auto;
+    z-index: 45;
+  }
+
+  /* Give the composer (textarea + composer-row) breathing room above the
+     drawer's bottom edge — and add an explicit safe-area floor — so the
+     input field and model selector trigger sit well clear of the tabbar. */
+  .composer-wrap {
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
   }
 
   /* Mobile rail returns to vertical list */
