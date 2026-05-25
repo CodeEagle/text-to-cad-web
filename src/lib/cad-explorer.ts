@@ -1,11 +1,69 @@
 import { execFile } from "node:child_process";
-import { access } from "node:fs/promises";
+import { access, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 
 import { getDataRoot } from "./paths";
 
 const execFileAsync = promisify(execFile);
+
+type RegisteredServer = {
+  port?: number;
+  rootPath?: string;
+  pid?: number;
+  app?: string;
+  url?: string;
+};
+
+async function evictStaleExplorerOnPort(opts: { port: number; scanRoot: string }): Promise<void> {
+  // ensure-dev's reuse logic requires an exact rootPath match. When the
+  // previous job's Vite Explorer is still alive on the only configured
+  // port but was bound to a different scanRoot, every subsequent job
+  // hits "No available CAD Explorer port found in 4178-4178; bind
+  // failures: EADDRINUSE on 1 port (4178)" because reuse is refused and
+  // the port can't be re-bound. Kill the stale process so the next
+  // dev:ensure call can spawn a fresh server for this job's scanRoot.
+  const registryPath = path.join(getDataRoot(), "cad-explorer-servers.json");
+  let raw: string;
+  try {
+    raw = await readFile(registryPath, "utf8");
+  } catch {
+    return;
+  }
+  let registry: RegisteredServer[];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return;
+    registry = parsed as RegisteredServer[];
+  } catch {
+    return;
+  }
+  const targetRoot = path.resolve(opts.scanRoot);
+  const isStale = (entry: RegisteredServer): boolean => (
+    typeof entry?.port === "number" &&
+    entry.port === opts.port &&
+    typeof entry?.pid === "number" &&
+    typeof entry?.rootPath === "string" &&
+    path.resolve(entry.rootPath) !== targetRoot
+  );
+  const stale = registry.filter(isStale);
+  if (stale.length === 0) return;
+  for (const entry of stale) {
+    try {
+      process.kill(entry.pid as number, "SIGTERM");
+    } catch {
+      // already gone — fine
+    }
+  }
+  // Give the OS a moment to release the port before ensure-dev binds.
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const remaining = registry.filter((entry) => !stale.includes(entry));
+  try {
+    await writeFile(registryPath, JSON.stringify(remaining, null, 2));
+  } catch {
+    // best-effort; ensure-dev rewrites the registry on next start anyway
+  }
+}
 
 const EXPLORER_EXTENSIONS = new Set([
   ".3mf",
@@ -71,6 +129,14 @@ export async function ensureCadExplorer({
 
   const viewerDir = await resolveCadViewerDir();
   await assertViewerDependencies(viewerDir);
+
+  const targetPort = Number.parseInt(
+    process.env.TEXT_TO_CAD_EXPLORER_PORT || process.env.EXPLORER_PORT || "4178",
+    10
+  );
+  if (Number.isFinite(targetPort)) {
+    await evictStaleExplorerOnPort({ port: targetPort, scanRoot });
+  }
 
   const { stdout } = await execFileAsync(
     "npm",
